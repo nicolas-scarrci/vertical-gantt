@@ -5,3 +5,9 @@ td, th {
 table {
     border-collapse: collapse;
 }
+td.slotFeedback{
+    font-weight:bold;
+}
+td.selectedProject{
+    font-weight:bold;
+}
