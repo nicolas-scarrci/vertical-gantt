@@ -1,14 +1,14 @@
-td, th {
+table[data-gantt-id] td, table[data-gantt-id] th {
     border: 1px solid black;
     padding:.25em;
 }
-table {
+table[data-gantt-id] {
     border-collapse: collapse;
 }
-td.slotFeedback{
+table[data-gantt-id] td.slotFeedback{
     font-weight:bold;
 }
-td.selectedProject{
+table[data-gantt-id] td.selectedProject{
     background-color:black;
 }
 table[data-gantt-role="projects"] thead th,
@@ -21,14 +21,17 @@ table[data-gantt-role="gantt"]    tbody tr:last-child td:first-child button{
     display:block;
     margin:auto;
 }
-tr.deadline{
+table[data-gantt-role="gantt"] tr.deadline{
     border: 0px solid;
 }
-tr.deadline-before{
+table[data-gantt-role="gantt"] tr.deadline-before{
     border-top-width:3px;
     box-shadow:0 -2px black;
 }
-tr.deadline-after{
+table[data-gantt-role="antt"] tr.deadline-after{
     border-bottom-width:3px;
     box-shadow:inset 0 -2px black;
 }
+/*table[data-gantt-role="gantt"] td{
+    background-color: attr('data-gantt-projectcolor'); can't use this because it's too bleeding edge!
+}*/
