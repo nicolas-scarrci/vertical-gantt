@@ -11,3 +11,13 @@ td.slotFeedback{
 td.selectedProject{
     background-color:black;
 }
+table[data-gantt-role="projects"] thead th,
+table[data-gantt-role="gantt"]    tbody td{
+    vertical-align: top;
+    text-align:center;
+}
+table[data-gantt-role="projects"] thead tr:last-child th:first-child button,
+table[data-gantt-role="gantt"]    tbody tr:last-child td:first-child button{
+    display:block;
+    margin:auto;
+}

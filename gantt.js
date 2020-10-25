@@ -1,5 +1,6 @@
 $.ganttdata = {
-    tmp:{}
+    tmp:{},
+    core:{}
 }
 $.gantt = function(){
     function outline(){
@@ -19,14 +20,13 @@ $.gantt = function(){
         // adding temporary variable storage
         $.ganttdata[$(this).attr('data-gantt-id')].tmp = {}
     })
-
+    var processProject
     //Process the projects tables
     $('table[data-gantt-role="projects"]').each(function (){
-        var id = $(this).attr('data-gantt-id')
-
+        
         $('thead tr',this).append('<th>Slots Remaining</th>')
-
-        $('tbody tr',this).each(function(){
+        processProject = function (){
+            var id = $(this).closest('table').attr('data-gantt-id')
             $(this).append("<td>0</td>")
             data = $('td',this)
             var projectid = $(data[0]).text()
@@ -73,55 +73,59 @@ $.gantt = function(){
                     $('input',cell).change(onchange[i])
                 }
             }
-        })
+        }
+        $('tbody tr',this).each(processProject)
     })
+    
+    var processResource
+    var processTimeslot
+    var processAssignment
 
     //Process the actual gantt tables
     $('table[data-gantt-role="gantt"]').each(function(){
-        var id = $(this).attr('data-gantt-id')
         
         //parse the resources
-        $('th',$('thead tr',this)[0]).slice(1).each(function(){
+        processResource = function(){
+            var id = $(this).closest('table').attr('data-gantt-id')
             var resource = $(this).text()
             $.ganttdata[id].resources.push(resource)
             $(this).html(`<input type="text" value="${resource}">`)
                    .attr('data-gantt-resourceid',resource)
-        })
+        }
+        $('th',$('thead tr',this)[0]).slice(1).each(processResource)
         
         //parse the timeslots
-        $('tbody tr td:first-child',this).each(function(){
+        processTimeslot = function(){
+            var id = $(this).closest('table').attr('data-gantt-id')
             var timeslot = $(this).text()
             $.ganttdata[id].timeslots.push(timeslot)
             $(this).html(`<input type="text" value="${timeslot}">`)
                    .attr('data-gantt-timeslotid',timeslot)
-
-            
-        })
+        }
+        $('tbody tr td:first-child',this).each(processTimeslot)
         
         //Parse the current assignments
-        $('tbody tr',this).each(function(){
-            var timeslot = $('td:first-child',this).text()
-            var tds = $('td',this).splice(1)
+        processAssignment = function(){
+            var id = $(this).closest('table').attr('data-gantt-id')
+            var resource = $.ganttdata[id].resources[$(this).prevAll('td').length-1]
+            var timeslot = $('td:first-child input',$(this).closest('tr')).val()
+            var project = $(this).text()
 
-            for(var i=0;i<tds.length;i++){
-                var resource = $.ganttdata[id].resources[i]
-                var project = $(tds[i]).text()
-
-                if($.ganttdata[id].assignments[timeslot]==undefined){
-                    $.ganttdata[id].assignments[timeslot]={}
-                }
-                
-                if($.ganttdata[id].projects[project]!=undefined){
-                    $(tds[i]).css('background-color',$.ganttdata[id].projects[project].color).attr('data-gantt-projectid',project)
-                }
-
-                $.ganttdata[id].assignments[timeslot][resource]=project
-                if($.ganttdata[id].projects[project]!=undefined){
-                    $.ganttdata[id].projects[project].slotsAllotted++
-                }
-                $(tds[i]).click({timeslot,resource,id},toggleAssignment)
+            if($.ganttdata[id].assignments[timeslot]==undefined){
+                $.ganttdata[id].assignments[timeslot]={}
             }
-        })
+            
+            if($.ganttdata[id].projects[project]!=undefined){
+                $(this).css('background-color',$.ganttdata[id].projects[project].color).attr('data-gantt-projectid',project)
+            }
+
+            $.ganttdata[id].assignments[timeslot][resource]=project
+            if($.ganttdata[id].projects[project]!=undefined){
+                $.ganttdata[id].projects[project].slotsAllotted++
+            }
+            $(this).click({timeslot,resource,id},toggleAssignment)
+        }
+        $('tbody tr td:not(:first-child)',this).each(processAssignment)
 
         //Output slots remaining
         $('table[data-gantt-role="projects"]').each(function (){
@@ -193,12 +197,56 @@ $.gantt = function(){
     }
 
     //Additional buttons and controls
-    
+    //add project button
     $('table[data-gantt-role="projects"] thead tr:last-child th:first-child').append(
         $('<button>+</button>').click(function(){
-            $("tbody",$(this).closest("table")).append("<tr><td><td><td><td><td></tr>")
+            var table = $(this).closest("table")
+            
+            var randomcolor = '#'+(''+Math.floor(Math.random()*255).toString(16)).padStart(2,'0')+(''+Math.floor(Math.random()*255).toString(16)).padStart(2,'0')+(''+Math.floor(Math.random()*255).toString(16)).padStart(2,'0')
+            var uniqueprojectname = 'Project ' + Math.floor(Math.random()*1000+999)
+            
+            $("tbody",table).append(`<tr><td>${uniqueprojectname}</td><td>${randomcolor}</td>${'<td>'.repeat(3)}</tr>`)
+
+            $('tbody tr:last-child',table).each(processProject)
     }))
     
+    function addNewResourceButton(id){
+    $(`table[data-gantt-role="gantt"]${id===undefined?``:`[data-gantt-id="${id}"]`} thead tr:last-child th:last-child`).append(
+        $('<button>+</button>').click(function(){
+            var table = $(this).closest("table")
+            
+            var resource = 'Team ' + Math.floor(Math.random()*1000+999)
+
+            $("thead tr",table).append(`'<th>${resource}</th>`)
+            $("tbody tr",table).append(`'<td>`)
+
+            $('th:last-child',$('thead tr',table)).each(processResource)
+            $('tbody tr td:last-child',table).each(processAssignment)
+            
+            $(this).remove()
+            addNewResourceButton(table.attr('data-gantt-id'))        
+        }))
+    }addNewResourceButton()
+
+    function addNewTimeslotButton(id){
+        $(`table[data-gantt-role="gantt"]${id===undefined?``:`[data-gantt-id="${id}"]`} tbody tr:last-child td:first-child`).append(
+            $('<button>+</button>').click(function(){
+                var table = $(this).closest("table")
+                
+                var timeslot = 'Week ' + Math.floor(Math.random()*1000+999)
+
+                var tr = $('<tr>')
+                tr.append(`<td>${timeslot}</td>`)
+                tr.append('<td>'.repeat($('td',$(this).closest('tr')).length-1))
+                $("tbody",table).append(tr)
+
+                $('tbody tr:last-child td:first-child',table).each(processTimeslot)
+                $('tbody tr:last-child td:not(:first-child)',table).each(processAssignment)
+
+                $(this).remove()
+                addNewTimeslotButton(table.attr('data-gantt-id'))
+        }))
+    }addNewTimeslotButton()
 }
 $(function() {
     $.gantt()
