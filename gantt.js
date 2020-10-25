@@ -57,13 +57,14 @@ $.gantt = function(){
             }
             var deadlineChanged = function(){
                 $.ganttdata[id].projects[projectid].deadline = $(this).val()
+                $(`table[data-gantt-role="gantt"][data-gantt-id="${id}"]`).each($.ganttdata.core.checkDeadlines)
             }
             var estimateChanged = function(){
                 $.ganttdata[id].projects[projectid].estimate = $(this).val()
                 updateSlotsRemaining(id)
 
             }
-            var onchange = [projectTitleChanged,projectColorChanged,undefined,estimateChanged]
+            var onchange = [projectTitleChanged,projectColorChanged,undefined,estimateChanged,deadlineChanged]
             
             for(i in [0,1,2,3,4]){
                 var cell = $(data[i])
@@ -80,6 +81,7 @@ $.gantt = function(){
     var processResource
     var processTimeslot
     var processAssignment
+    
 
     //Process the actual gantt tables
     $('table[data-gantt-role="gantt"]').each(function(){
@@ -104,6 +106,56 @@ $.gantt = function(){
         }
         $('tbody tr td:first-child',this).each(processTimeslot)
         
+        $.ganttdata.core.checkDeadlines = function(){
+            $('table[data-gantt-role="gantt"] .deadline,table[data-gantt-role="gantt"] .deadline-before,table[data-gantt-role="gantt"] .deadline-after')
+                .removeClass('deadline')
+                .removeClass('deadline-before')
+                .removeClass('deadline-after')
+            var id = $(this).attr('data-gantt-id')
+            for(var projectKey in $.ganttdata[id].projects){
+                var deadline = $.ganttdata[id].projects[projectKey].deadline
+                /*for(var timeslotKey in $.ganttdata[id].references.timeslots){
+                    var timeslotCell = $.ganttdata[id].references.timeslots[timeslotKey]
+                    var timeslot = $('input',timeslotCell).val()*/
+                var timeslots = $('tbody tr td:first-child',this)
+                if(deadline.toLowerCase().startsWith('end of')){
+                    var lastTime 
+                    timeslots.each(function(index,timeslot){
+                        if($('input',timeslot).val().toLowerCase().includes(deadline.toLowerCase().replace('end of','').trim())){
+                            lastTime = index
+                        }
+                    })
+                    if(lastTime!==undefined){
+                        $($('tbody tr td:first-child',this)[lastTime]).closest('tr').addClass('deadline').addClass('deadline-after').css('border-color',$.ganttdata[id].projects[projectKey].color)
+                    }
+                }
+                else if(deadline.toLowerCase().startsWith('start of')){
+                    var firstTime 
+                    timeslots.each(function(index,timeslot){
+                        if($('input',timeslot).val().toLowerCase().includes(deadline.toLowerCase().replace('start of','').trim())&&firstTime===undefined){
+                            firstTime = index
+                        }
+                    })
+                    if(firstTime!==undefined){
+                        $($('tbody tr td:first-child',this)[firstTime]).closest('tr').addClass('deadline').addClass('deadline-before').css('border-color',$.ganttdata[id].projects[projectKey].color)
+                    }
+                }
+                else {
+                    var firstTime 
+                    timeslots.each(function(index,timeslot){
+                        if($('input',timeslot).val().toLowerCase().includes(deadline.toLowerCase().trim())&&firstTime===undefined){
+                            firstTime = index
+                        }
+                    })
+                    if(firstTime!==undefined){
+                        $($('tbody tr td:first-child',this)[firstTime]).closest('tr').addClass('deadline').addClass('deadline-before').css('border-color',$.ganttdata[id].projects[projectKey].color)
+                    }
+                }
+            
+            }
+        }
+        $(this).each($.ganttdata.core.checkDeadlines)
+
         //Parse the current assignments
         processAssignment = function(){
             var id = $(this).closest('table').attr('data-gantt-id')

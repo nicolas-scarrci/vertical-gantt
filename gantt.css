@@ -21,3 +21,14 @@ table[data-gantt-role="gantt"]    tbody tr:last-child td:first-child button{
     display:block;
     margin:auto;
 }
+tr.deadline{
+    border: 0px solid;
+}
+tr.deadline-before{
+    border-top-width:3px;
+    box-shadow:0 -2px black;
+}
+tr.deadline-after{
+    border-bottom-width:3px;
+    box-shadow:inset 0 -2px black;
+}
