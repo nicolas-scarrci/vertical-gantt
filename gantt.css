@@ -9,5 +9,5 @@ td.slotFeedback{
     font-weight:bold;
 }
 td.selectedProject{
-    font-weight:bold;
+    background-color:black;
 }

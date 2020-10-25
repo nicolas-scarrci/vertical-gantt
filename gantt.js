@@ -28,22 +28,51 @@ $.gantt = function(){
 
         $('tbody tr',this).each(function(){
             $(this).append("<td>0</td>")
-            var data = $('td',this)
-            $.ganttdata[id].projects[$(data[0]).text()] = {
+            data = $('td',this)
+            var projectid = $(data[0]).text()
+            $.ganttdata[id].projects[projectid] = {
                 color:                  $(data[1]).text(),
                 customer:               $(data[2]).text(),
                 estimate:      parseInt($(data[3]).text()),
                 deadline:               $(data[4]).text(),
                 slotsAllotted: parseInt($(data[5]).text()),       
             }
-            $.ganttdata[id].references.projects[$(data[0]).text()] = {
+            $.ganttdata[id].references.projects[projectid] = {
+                project:             $(data[0]),
                 color:               $(data[1]),
                 customer:            $(data[2]),
                 estimate:            $(data[3]),
                 deadline:            $(data[4]),
                 slotsAllotted:       $(data[5]) 
             }
-            $('td:first-child',this).click({id},selectProject)
+            $('td:first-child',this).click({id},selectProject).attr('data-gantt-projectid',$(data[0]).text())
+            
+            var types = ["text","color","text","text","text"]
+            var projectTitleChanged = function(e){
+                $(`table[data-gantt-role="gantt"][data-gantt-id="${id}"] td[data-gantt-projectid="${projectid}"]`).text($(this).val())
+            }
+            var projectColorChanged = function(){
+                $.ganttdata[id].projects[projectid].color = $(this).val()
+                $(`table[data-gantt-role="gantt"][data-gantt-id="${id}"] td[data-gantt-projectid="${projectid}"]`).css('background-color',$(this).val())
+            }
+            var deadlineChanged = function(){
+                $.ganttdata[id].projects[projectid].deadline = $(this).val()
+            }
+            var estimateChanged = function(){
+                $.ganttdata[id].projects[projectid].estimate = $(this).val()
+                updateSlotsRemaining(id)
+
+            }
+            var onchange = [projectTitleChanged,projectColorChanged,undefined,estimateChanged]
+            
+            for(i in [0,1,2,3,4]){
+                var cell = $(data[i])
+                var text = cell.text()
+                cell.html(`<input type="${types[i]}" value="${text}">`)
+                if(onchange[i]!==undefined){
+                    $('input',cell).change(onchange[i])
+                }
+            }
         })
     })
 
@@ -75,7 +104,7 @@ $.gantt = function(){
                 }
                 
                 if($.ganttdata[id].projects[project]!=undefined){
-                    $(tds[i]).css('background-color',$.ganttdata[id].projects[project].color)
+                    $(tds[i]).css('background-color',$.ganttdata[id].projects[project].color).attr('data-gantt-projectid',project)
                 }
 
                 $.ganttdata[id].assignments[timeslot][resource]=project
@@ -93,6 +122,8 @@ $.gantt = function(){
         })
     })
 
+
+
     function updateSlotsRemaining(id){
         for(var projectKey in $.ganttdata[id].projects){
             var project = $.ganttdata[id].projects[projectKey]
@@ -105,9 +136,16 @@ $.gantt = function(){
     }
 
     function selectProject(e){
-        $.ganttdata[e.data.id].tmp.selectedproject = $(this).text()
         $('table[data-gantt-role="projects"][data-gantt-id="'+e.data.id+'"] td').removeClass('selectedProject')
-        $(this).addClass('selectedProject')
+        if($.ganttdata[e.data.id].tmp.selectedproject == $(this).attr('data-gantt-projectid')){
+            $.ganttdata[e.data.id].tmp.selectedproject = undefined
+        }
+        else{
+            $.ganttdata[e.data.id].tmp.selectedproject = $(this).attr('data-gantt-projectid')
+            $(this).addClass('selectedProject')
+        }
+        
+        
     }
 
     function toggleAssignment(eventdata){
@@ -128,13 +166,15 @@ $.gantt = function(){
   
         if(currentProject == selectedProject){
             $(this).text('')
-            $(this).css('background-color','')
+                   .css('background-color','')
+                   .attr('data-gantt-projectid','')
             $.ganttdata[id].assignments[timeslot][resource] = '';
             $.ganttdata[id].projects[selectedProject].slotsAllotted--
         }
         else{
-            $(this).text(selectedProject)
-            $(this).css('background-color', $.ganttdata[id].projects[selectedProject].color)
+            $(this).text($('input',$.ganttdata[id].references.projects[selectedProject].project).val())//since the value may have changed
+                   .css('background-color', $.ganttdata[id].projects[selectedProject].color)
+                   .attr('data-gantt-projectid',selectedProject)
             $.ganttdata[id].assignments[timeslot][resource] = selectedProject
             if($.ganttdata[id].projects[currentProject]!=undefined){
                 $.ganttdata[id].projects[currentProject].slotsAllotted--
