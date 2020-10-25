@@ -82,12 +82,20 @@ $.gantt = function(){
         
         //parse the resources
         $('th',$('thead tr',this)[0]).slice(1).each(function(){
-            $.ganttdata[id].resources.push($(this).text())
+            var resource = $(this).text()
+            $.ganttdata[id].resources.push(resource)
+            $(this).html(`<input type="text" value="${resource}">`)
+                   .attr('data-gantt-resourceid',resource)
         })
         
         //parse the timeslots
         $('tbody tr td:first-child',this).each(function(){
-            $.ganttdata[id].timeslots.push($(this).text())
+            var timeslot = $(this).text()
+            $.ganttdata[id].timeslots.push(timeslot)
+            $(this).html(`<input type="text" value="${timeslot}">`)
+                   .attr('data-gantt-timeslotid',timeslot)
+
+            
         })
         
         //Parse the current assignments
