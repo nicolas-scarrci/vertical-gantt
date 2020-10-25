@@ -191,6 +191,14 @@ $.gantt = function(){
         }
         updateSlotsRemaining(id)
     }
+
+    //Additional buttons and controls
+    
+    $('table[data-gantt-role="projects"] thead tr:last-child th:first-child').append(
+        $('<button>+</button>').click(function(){
+            $("tbody",$(this).closest("table")).append("<tr><td><td><td><td><td></tr>")
+    }))
+    
 }
 $(function() {
     $.gantt()
