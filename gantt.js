@@ -250,54 +250,59 @@ $.gantt = function(){
 
     //Additional buttons and controls
     //add project button
-    $('table[data-gantt-role="projects"] thead tr:last-child th:first-child').append(
-        $('<button>+</button>').click(function(){
-            var table = $(this).closest("table")
-            
-            var randomcolor = '#'+(''+Math.floor(Math.random()*255).toString(16)).padStart(2,'0')+(''+Math.floor(Math.random()*255).toString(16)).padStart(2,'0')+(''+Math.floor(Math.random()*255).toString(16)).padStart(2,'0')
-            var uniqueprojectname = 'Project ' + Math.floor(Math.random()*1000+999)
-            
-            $("tbody",table).append(`<tr><td>${uniqueprojectname}</td><td>${randomcolor}</td>${'<td>'.repeat(3)}</tr>`)
+    function addNewProjectButton(id){
+        $(`table[data-gantt-role="projects"]${id===undefined?``:`[data-gantt-id="${id}"]`} tbody`).append(
+            $('<tr class="button-only"><td><button>+</button></td></tr>').click(function(){
+                var table = $(this).closest("table")
+                $(this).remove()
+                var randomcolor = '#'+(''+Math.floor(Math.random()*255).toString(16)).padStart(2,'0')+(''+Math.floor(Math.random()*255).toString(16)).padStart(2,'0')+(''+Math.floor(Math.random()*255).toString(16)).padStart(2,'0')
+                var uniqueprojectname = 'Project ' + Math.floor(Math.random()*1000+999)
+                
+                $("tbody",table).append(`<tr><td>${uniqueprojectname}</td><td>${randomcolor}</td>${'<td>'.repeat(3)}</tr>`)
 
-            $('tbody tr:last-child',table).each(processProject)
-    }))
+                $('tbody tr:last-child',table).each(processProject)
+                addNewProjectButton(table.attr('data-gantt-id'))
+            })
+        )
+    }addNewProjectButton()
     
     function addNewResourceButton(id){
-    $(`table[data-gantt-role="gantt"]${id===undefined?``:`[data-gantt-id="${id}"]`} thead tr:last-child th:last-child`).append(
-        $('<button>+</button>').click(function(){
-            var table = $(this).closest("table")
-            
-            var resource = 'Team ' + Math.floor(Math.random()*1000+999)
+        $(`table[data-gantt-role="gantt"]${id===undefined?``:`[data-gantt-id="${id}"]`} thead tr:last-child`).append(
+            $('<th class="button-only"><button>+</button><input type="text"></th>').click(function(){
+                var table = $(this).closest("table")
+                $(this).remove()
+                var resource = 'Team ' + Math.floor(Math.random()*1000+999)
 
-            $("thead tr",table).append(`'<th>${resource}</th>`)
-            $("tbody tr",table).append(`'<td>`)
+                $("thead tr",table).append(`'<th>${resource}</th>`)
+                $("tbody tr",table).append(`'<td>`)
 
-            $('th:last-child',$('thead tr',table)).each(processResource)
-            $('tbody tr td:last-child',table).each(processAssignment)
-            
-            $(this).remove()
-            addNewResourceButton(table.attr('data-gantt-id'))        
-        }))
+                $('th:last-child',$('thead tr',table)).each(processResource)
+                $('tbody tr td:last-child',table).each(processAssignment)
+                
+                addNewResourceButton(table.attr('data-gantt-id'))        
+            })
+        )
     }addNewResourceButton()
 
     function addNewTimeslotButton(id){
-        $(`table[data-gantt-role="gantt"]${id===undefined?``:`[data-gantt-id="${id}"]`} tbody tr:last-child td:first-child`).append(
-            $('<button>+</button>').click(function(){
+        $(`table[data-gantt-role="gantt"]${id===undefined?``:`[data-gantt-id="${id}"]`}`).append(
+            $('<tr class="button-only"><td><button>+</button></td></tr>').click(function(){
                 var table = $(this).closest("table")
-                
+                $(this).remove()
                 var timeslot = 'Week ' + Math.floor(Math.random()*1000+999)
 
                 var tr = $('<tr>')
                 tr.append(`<td>${timeslot}</td>`)
-                tr.append('<td>'.repeat($('td',$(this).closest('tr')).length-1))
+                tr.append('<td>'.repeat($('td',$('tr:first-child',table)).length-1))
                 $("tbody",table).append(tr)
 
                 $('tbody tr:last-child td:first-child',table).each(processTimeslot)
                 $('tbody tr:last-child td:not(:first-child)',table).each(processAssignment)
 
-                $(this).remove()
+                //$(this).remove()
                 addNewTimeslotButton(table.attr('data-gantt-id'))
-        }))
+            })
+        )
     }addNewTimeslotButton()
 }
 $(function() {

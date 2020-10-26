@@ -13,25 +13,30 @@ table[data-gantt-id] {
 }
 table[data-gantt-id] input {
     border-width: 0;
+    background-color:transparent;
 }
 table[data-gantt-id] input:focus {
     border-width: 0;
     outline-width:0;
-    box-shadow: 0px 0px 20px grey;
 }
-table[data-gantt-id] input:focus {
-    border-width: 0;
-    outline-width:0;
-    box-shadow: inset 0px 0px 20px antiquewhite;
+table[data-gantt-id] td:focus-within, table[data-gantt-id] th:focus-within{
+    background-color: antiquewhite;
 }
 table[data-gantt-id] th input{
     text-align:center;
 }
 table[data-gantt-role="gantt"] th input {
     font-size:.75em;
+    padding:5px;
+}
+table[data-gantt-role="gantt"] td input {
+    padding:5px;
 }
 table[data-gantt-role="gantt"] th {
     padding:2px 1px;
+}
+table[data-gantt-role="projects"] tbody td:nth-child(2) {
+    text-align: center;
 }
 
 /* selected items */
@@ -39,21 +44,36 @@ table[data-gantt-id] td.slotFeedback{
     font-weight:bold;
 }
 table[data-gantt-id] td.selectedProject{
-    background-color:black;
+    background-color:antiquewhite;
 }
 
 /* tweaking buttons (and resulting changes) */
 table[data-gantt-role="projects"] thead th,
 table[data-gantt-role="gantt"]    tbody td{
-    vertical-align: top;
     text-align:center;
 }
 table[data-gantt-role="projects"] thead tr:last-child th:first-child button,
-table[data-gantt-role="gantt"]    tbody tr:last-child td:first-child button{
+table[data-gantt-id]              tbody tr:last-child td:first-child button{
     display:block;
-    margin:auto;
-}
+    width:100%;
+    height:100%;
 
+}
+table[data-gantt-id]              tbody tr.button-only td,
+table[data-gantt-role="gantt"]    thead tr th.button-only {
+    box-shadow:none;
+    padding:0;
+}
+table[data-gantt-id] th.button-only button{
+    display:block;
+    width:100%;
+    height:100%;
+    margin: 0;
+}
+table[data-gantt-id] th.button-only button+input{
+    height:0;
+    padding:0;
+}
 /* Deadlines */
 
 table[data-gantt-role="gantt"] tr.deadline{
