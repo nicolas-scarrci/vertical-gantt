@@ -82,7 +82,7 @@ table[data-gantt-role="gantt"] tr.deadline{
 table[data-gantt-role="gantt"] tr.deadline-before{
     border-top-width:3px;
 }
-table[data-gantt-role="antt"] tr.deadline-after{
+table[data-gantt-role="gantt"] tr.deadline-after{
     border-bottom-width:3px;
 }
 /*table[data-gantt-role="gantt"] td{

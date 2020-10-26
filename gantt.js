@@ -103,6 +103,7 @@ $.gantt = function(){
             $.ganttdata[id].timeslots.push(timeslot)
             $(this).html(`<input type="text" value="${timeslot}">`)
                    .attr('data-gantt-timeslotid',timeslot)
+            $('input',this).change(function(){$.ganttdata.core.checkDeadlines.call($(this).closest('table'))})
         }
         $('tbody tr td:first-child',this).each(processTimeslot)
         
@@ -111,15 +112,13 @@ $.gantt = function(){
                 .removeClass('deadline')
                 .removeClass('deadline-before')
                 .removeClass('deadline-after')
+                .css('border-color','')
             var id = $(this).attr('data-gantt-id')
             for(var projectKey in $.ganttdata[id].projects){
                 var deadline = $.ganttdata[id].projects[projectKey].deadline
-                /*for(var timeslotKey in $.ganttdata[id].references.timeslots){
-                    var timeslotCell = $.ganttdata[id].references.timeslots[timeslotKey]
-                    var timeslot = $('input',timeslotCell).val()*/
-                var timeslots = $('tbody tr td:first-child',this)
+                var timeslots = $('tbody tr:not(:last-child) td:first-child',this)
                 if(deadline.toLowerCase().startsWith('end of')){
-                    var lastTime 
+                    var lastTime = undefined
                     timeslots.each(function(index,timeslot){
                         if($('input',timeslot).val().toLowerCase().includes(deadline.toLowerCase().replace('end of','').trim())){
                             lastTime = index
@@ -130,7 +129,7 @@ $.gantt = function(){
                     }
                 }
                 else if(deadline.toLowerCase().startsWith('start of')){
-                    var firstTime 
+                    var firstTime = undefined
                     timeslots.each(function(index,timeslot){
                         if($('input',timeslot).val().toLowerCase().includes(deadline.toLowerCase().replace('start of','').trim())&&firstTime===undefined){
                             firstTime = index
@@ -141,7 +140,7 @@ $.gantt = function(){
                     }
                 }
                 else {
-                    var firstTime 
+                    var firstTime = undefined
                     timeslots.each(function(index,timeslot){
                         if($('input',timeslot).val().toLowerCase().includes(deadline.toLowerCase().trim())&&firstTime===undefined){
                             firstTime = index
@@ -249,7 +248,6 @@ $.gantt = function(){
     }
 
     //Additional buttons and controls
-    //add project button
     function addNewProjectButton(id){
         $(`table[data-gantt-role="projects"]${id===undefined?``:`[data-gantt-id="${id}"]`} tbody`).append(
             $('<tr class="button-only"><td><button>+</button></td></tr>').click(function(){
@@ -299,7 +297,6 @@ $.gantt = function(){
                 $('tbody tr:last-child td:first-child',table).each(processTimeslot)
                 $('tbody tr:last-child td:not(:first-child)',table).each(processAssignment)
 
-                //$(this).remove()
                 addNewTimeslotButton(table.attr('data-gantt-id'))
             })
         )
