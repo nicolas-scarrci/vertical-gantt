@@ -250,7 +250,7 @@ $.gantt = function(){
     //Additional buttons and controls
     function addNewProjectButton(id){
         $(`table[data-gantt-role="projects"]${id===undefined?``:`[data-gantt-id="${id}"]`} tbody`).append(
-            $('<tr class="button-only"><td><button>+</button></td></tr>').click(function(){
+            $('<tr class="button-only"><td><button><input type="button" value="+"></button></td></tr>').click(function(){
                 var table = $(this).closest("table")
                 $(this).remove()
                 var randomcolor = '#'+(''+Math.floor(Math.random()*255).toString(16)).padStart(2,'0')+(''+Math.floor(Math.random()*255).toString(16)).padStart(2,'0')+(''+Math.floor(Math.random()*255).toString(16)).padStart(2,'0')
@@ -266,7 +266,7 @@ $.gantt = function(){
     
     function addNewResourceButton(id){
         $(`table[data-gantt-role="gantt"]${id===undefined?``:`[data-gantt-id="${id}"]`} thead tr:last-child`).append(
-            $('<th class="button-only"><button>+</button><input type="text"></th>').click(function(){
+            $('<th class="button-only"><button><input type="button" value="+"></button></th>').click(function(){
                 var table = $(this).closest("table")
                 $(this).remove()
                 var resource = 'Team ' + Math.floor(Math.random()*1000+999)
@@ -284,7 +284,7 @@ $.gantt = function(){
 
     function addNewTimeslotButton(id){
         $(`table[data-gantt-role="gantt"]${id===undefined?``:`[data-gantt-id="${id}"]`}`).append(
-            $('<tr class="button-only"><td><button>+</button></td></tr>').click(function(){
+            $('<tr class="button-only"><td><button><input type="button" value="+"></button></td></tr>').click(function(){
                 var table = $(this).closest("table")
                 $(this).remove()
                 var timeslot = 'Week ' + Math.floor(Math.random()*1000+999)

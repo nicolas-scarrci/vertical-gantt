@@ -38,7 +38,14 @@ table[data-gantt-role="gantt"] th {
 table[data-gantt-role="projects"] tbody td:nth-child(2) {
     text-align: center;
 }
+table[data-gantt-role="gantt"] tbody td:not(first-child){
+    color:white;
+    text-shadow: #555 -1px  1px  .1em,
+                 #555  1px -1px  .1em,
+                 #555  1px  1px  .1em,
+                 #555 -1px -1px  .1em;
 
+}
 /* selected items */
 table[data-gantt-id] td.slotFeedback{
     font-weight:bold;
@@ -64,15 +71,15 @@ table[data-gantt-role="gantt"]    thead tr th.button-only {
     box-shadow:none;
     padding:0;
 }
-table[data-gantt-id] th.button-only button{
+table[data-gantt-id] th.button-only input[type="button"]{
     display:block;
     width:100%;
     height:100%;
     margin: 0;
-}
-table[data-gantt-id] th.button-only button+input{
-    height:0;
-    padding:0;
+    border-width: 2px;
+    border-color: transparent;
+    background-color:unset;
+    font-size:13.3333px;
 }
 /* Deadlines */
 
