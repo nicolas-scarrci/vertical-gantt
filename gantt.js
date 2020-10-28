@@ -219,12 +219,13 @@ $.gantt = function(){
         for(let projectKey in $.ganttdata[id].projects){
             let project = $.ganttdata[id].projects[projectKey]
             let slotsRemainingCell = $.ganttdata[id].references.projects[projectKey].slotsAllotted
+            if(Number.isNaN(project.estimate)){
+                continue
+            }
             let slotsRemaining = project.estimate - project.slotsAllotted
             
-            if(slotsRemaining!==NaN){
-                slotsRemainingCell.text(slotsRemaining)
-                slotsRemainingCell.toggleClass('slotFeedback',slotsRemaining!==0)
-            }
+            slotsRemainingCell.text(slotsRemaining)
+            slotsRemainingCell.toggleClass('slotFeedback',slotsRemaining!==0)
         }
     }
 
