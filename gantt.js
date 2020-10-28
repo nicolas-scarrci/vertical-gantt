@@ -195,7 +195,7 @@ $.gantt = function(){
     }
     //Process the actual gantt tables
     $('table[data-gantt-role="gantt"]').each(function(){
-        var id = $(this).attr('data-gantt-id')
+        let id = $(this).attr('data-gantt-id')
         
         $('thead tr:first-child th',this).slice(1).each(processResource(id))
         
@@ -291,7 +291,13 @@ $.gantt = function(){
             function addProject(id, table){
                 return function(){
                     let randomcolor = '#'+(''+Math.floor(Math.random()*255).toString(16)).padStart(2,'0')+(''+Math.floor(Math.random()*255).toString(16)).padStart(2,'0')+(''+Math.floor(Math.random()*255).toString(16)).padStart(2,'0')
-                    let uniqueprojectname = 'Project ' + Math.floor(Math.random()*1000+999)
+                    let uniqueprojectname = function(){
+                        let uniqueprojectname = 'Project ' + Math.floor(Math.random()*1000+999)
+                        if($.ganttdata[id].projects.hasOwnProperty(uniqueprojectname)){
+                            return arguments.callee()
+                        }
+                        return uniqueprojectname
+                    }()
                     
                     let tableBody = $('tbody',table)
                     tableBody.append(`<tr><td>${uniqueprojectname}</td><td>${randomcolor}</td>${'<td>'.repeat(3)}</tr>`)
@@ -311,7 +317,13 @@ $.gantt = function(){
 
             function addResource(id,table){
                 return function(){
-                    let resource = 'Team ' + Math.floor(Math.random()*1000+999)
+                    let resource = function(){
+                        let resource = 'Team ' + Math.floor(Math.random()*1000+999)
+                        if($.ganttdata[id].resources.includes(resource)){
+                            return arguments.callee()
+                        }
+                        return resource
+                    }()
 
                     $('thead tr:last-child',table).append(`'<th>${resource}</th>`)
                     $('tbody tr',table).append('<td></td>')
@@ -331,7 +343,13 @@ $.gantt = function(){
 
             function addTimeslot(id, table){
                 return function(){
-                    let timeslot = 'Week ' + Math.floor(Math.random()*1000+999)
+                    let timeslot = function (){
+                        let timeslot = 'Week ' + Math.floor(Math.random()*1000+999)
+                        if($.ganttdata[id].timeslots.includes(timeslot)){
+                            return arguments.callee()
+                        }
+                        return timeslot
+                    }()
 
                     let numberOfCells = $('tbody tr:first-child',table)[0].cells.length
                     let tr = $('<tr>')
@@ -376,5 +394,4 @@ $.gantt = function(){
 
 $(function() {
     $.gantt()
-    console.log('estimates become NaN if not set before it\'s updated')
 })
