@@ -110,7 +110,7 @@ $.gantt = function(){
         return function(){
             let project = $(this).text()
             let timeslot = $('td:first-child input',$(this.parentNode)).val()
-            let resource = $.ganttdata[id].resources[this.cellIndex]
+            let resource = $.ganttdata[id].resources[this.cellIndex-1]
             
             if($.ganttdata[id].assignments[timeslot]==undefined){
                 $.ganttdata[id].assignments[timeslot]={}
