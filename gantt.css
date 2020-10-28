@@ -25,6 +25,9 @@ table[data-gantt-id] td:focus-within, table[data-gantt-id] th:focus-within{
 table[data-gantt-id] th input{
     text-align:center;
 }
+table[data-gantt-role="gantt"]{
+    display:inline-block;
+}
 table[data-gantt-role="gantt"] th input {
     font-size:.75em;
     padding:5px;
@@ -80,6 +83,21 @@ table[data-gantt-id] th.button-only input[type="button"]{
     border-color: transparent;
     background-color:unset;
     font-size:13.3333px;
+}
+button[data-gantt-role="add-resource"]{
+    vertical-align:top;
+    display:inline-block;
+    width:2em;
+}
+button[data-gantt-role="add-timeslot"], button[data-gantt-role="add-project"]{
+    display:block;
+    height:2em;
+}
+button[data-gantt-role="add-project"]{
+    margin-bottom:2em;
+}
+button[data-gantt-role="add-timeslot"]{
+    margin-bottom:5em;
 }
 /* Deadlines */
 

@@ -13,7 +13,9 @@ $.gantt = function(){
             resources:[],
             timeslots:[],
             assignments:{},
-            tmp:{}
+            tmp:{
+                resizeObserver:{}
+            }
         }
     }
     
@@ -280,94 +282,98 @@ $.gantt = function(){
     }
 
     function addNewProjectButton(id){
-        let table = undefined;
-        if(id===undefined){
-            table = $('table[data-gantt-role="projects"]')
-        }
-        else{
-            table = $(`table[data-gantt-role="projects"][data-gantt-id="${id}"]`)
-        }
-        
-        let buttonRow = $('<tr class="button-only"><td><button><input type="button" value="+"></button></td></tr>')
-        buttonRow.click(function(){
-            let table = $(this).closest('table')
-            $(this).remove()
+        $('table[data-gantt-role="projects"]').each(function(){           
+            let id = $(this).attr('data-gantt-id')
+            let button = $(`<button data-gantt-role="add-project" data-gantt-id="${id}">+</button>`)
+            $(this).after(button)
 
-            let randomcolor = '#'+(''+Math.floor(Math.random()*255).toString(16)).padStart(2,'0')+(''+Math.floor(Math.random()*255).toString(16)).padStart(2,'0')+(''+Math.floor(Math.random()*255).toString(16)).padStart(2,'0')
-            let uniqueprojectname = 'Project ' + Math.floor(Math.random()*1000+999)
-            
-            let id = table.attr('data-gantt-id')
-            let tableBody = $('tbody',table)
-            tableBody.append(`<tr><td>${uniqueprojectname}</td><td>${randomcolor}</td>${'<td>'.repeat(3)}</tr>`)
+            function addProject(id, table){
+                return function(){
+                    let randomcolor = '#'+(''+Math.floor(Math.random()*255).toString(16)).padStart(2,'0')+(''+Math.floor(Math.random()*255).toString(16)).padStart(2,'0')+(''+Math.floor(Math.random()*255).toString(16)).padStart(2,'0')
+                    let uniqueprojectname = 'Project ' + Math.floor(Math.random()*1000+999)
+                    
+                    let tableBody = $('tbody',table)
+                    tableBody.append(`<tr><td>${uniqueprojectname}</td><td>${randomcolor}</td>${'<td>'.repeat(3)}</tr>`)
 
-            $('tr:last-child',tableBody).each(processProject(id))
-            addNewProjectButton(id)
+                    $('tr:last-child',tableBody).each(processProject(id))
+                }
+            }
+            button.click(addProject(id,this))
         })
-        let tableBody = $('tbody',table)
-        tableBody.append(buttonRow)
     }addNewProjectButton()
     
-    function addNewResourceButton(id){
-        let table = undefined
-        if(id===undefined){
-            table = $('table[data-gantt-role="gantt"]')
-        }
-        else{
-            table = $(`table[data-gantt-role="gantt"][data-gantt-id="${id}"]`)
-        }
-        
-        let buttonCell = $('<th class="button-only"><button><input type="button" value="+"></button></th>')
-        buttonCell.click(function(){
-            let table = $(this).closest('table')
-            $(this).remove()
+    function addNewResourceButton(){
+        $('table[data-gantt-role="gantt"]').each(function(){
+            let id = $(this).attr('data-gantt-id')
+            let button = $(`<button data-gantt-role="add-resource" data-gantt-id="${id}">+</button>`)
+            $(this).after(button)
 
-            var resource = 'Team ' + Math.floor(Math.random()*1000+999)
+            function addResource(id,table){
+                return function(){
+                    let resource = 'Team ' + Math.floor(Math.random()*1000+999)
 
-            let resourceRow = $('thead tr:last-child',table)
-            resourceRow.append(`'<th>${resource}</th>`)
-            $("tbody tr",table).append(`<td>`)
-
-            var id = table.attr('data-gantt-id')
-            $('thead tr th:last-child',table).each(processResource(id))
-            $('tbody tr td:last-child',table).each(processAssignment(id))
-            
-            addNewResourceButton(id)        
+                    $('thead tr:last-child',table).append(`'<th>${resource}</th>`)
+                    $('tbody tr',table).append('<td></td>')
+                    $('thead tr th:last-child',table).each(processResource(id))
+                    $('tbody tr td:last-child',table).each(processAssignment(id))
+                }
+            }
+            button.click(addResource(id,this))
         })
-        let resourceRow = $('thead tr:last-child',table)
-        resourceRow.append(buttonCell)
     }addNewResourceButton()
 
-    function addNewTimeslotButton(id){
-        let table = undefined
-        if(id===undefined){
-            table = $('table[data-gantt-role="gantt"]')
-        }
-        else{
-            table = $(`table[data-gantt-role="gantt"][data-gantt-id="${id}"]`)
-        }
-        
-        let buttonRow = $('<tr class="button-only"><td><button><input type="button" value="+"></button></td></tr>')
-        buttonRow.click(function(){
-            let table = $(this).closest('table')
-            $(this).remove()
+    function addNewTimeslotButton(){
+        $('table[data-gantt-role="gantt"]').each(function(){
+            let id = $(this).attr('data-gantt-id')
+            let button = $(`<button data-gantt-role="add-timeslot" data-gantt-id="${id}">+</button>`)
+            $(`button[data-gantt-role="add-resource"][data-gantt-id="${id}"]`).after(button)
 
-            let timeslot = 'Week ' + Math.floor(Math.random()*1000+999)
+            function addTimeslot(id, table){
+                return function(){
+                    let timeslot = 'Week ' + Math.floor(Math.random()*1000+999)
 
-            let numberOfCells = $('tbody tr:first-child',table)[0].cells.length
-            let tr = $('<tr>')
-            tr.append(`<td>${timeslot}</td>${'<td>'.repeat(numberOfCells-1)}`)
-            $("tbody",table).append(tr)
+                    let numberOfCells = $('tbody tr:first-child',table)[0].cells.length
+                    let tr = $('<tr>')
+                    tr.append(`<td>${timeslot}</td>${'<td>'.repeat(numberOfCells-1)}`)
+                    $("tbody",table).append(tr)
 
-            var id = table.attr('data-gantt-id')
-            $('tbody tr:last-child td:first-child',table).each(processTimeslot(id))
-            $('tbody tr:last-child td:not(:first-child)',table).each(processAssignment(id))
-
-            addNewTimeslotButton(table.attr('data-gantt-id'))
+                    $('tbody tr:last-child td:first-child',table).each(processTimeslot(id))
+                    $('tbody tr:last-child td:not(:first-child)',table).each(processAssignment(id))
+                }
+            }
+            button.click(addTimeslot(id,this))
         })
-        table.append(buttonRow)
     }addNewTimeslotButton()
+
+    $('table[data-gantt-role="gantt"]').each(function(){
+        let id = $(this).attr('data-gantt-id')
+        let resourceButton = $(`button[data-gantt-role="add-resource"][data-gantt-id="${id}"]`)
+        let timeslotButton = $(`button[data-gantt-role="add-timeslot"][data-gantt-id="${id}"]`)
+        function ganttButtonResizer(resourceButton, timeslotButton){
+            return function(entries){
+                resourceButton.css('height',entries[0].contentRect.height+'px')
+                timeslotButton.css('width' ,entries[0].contentRect.width +'px')
+            }
+        }
+        $.ganttdata[id].tmp.resizeObserver.gantt = new ResizeObserver(ganttButtonResizer(resourceButton,timeslotButton))
+        $.ganttdata[id].tmp.resizeObserver.gantt.observe(this)
+    })
+    $('table[data-gantt-role="projects"]').each(function(){
+        let id = $(this).attr('data-gantt-id')
+        let projectButton = $(`button[data-gantt-role="add-project"][data-gantt-id="${id}"]`)
+        function projectButtonResizer(projectButton){
+            return function(entries){
+                projectButton.css('width',entries[0].contentRect.width+'px')
+            }
+        }
+        $.ganttdata[id].tmp.resizeObserver.projects = new ResizeObserver(projectButtonResizer(projectButton))
+        $.ganttdata[id].tmp.resizeObserver.projects.observe(this)
+    })
+    
+
 }
+
 $(function() {
     $.gantt()
-    console.log('consider making my buttons "outside" of my tables, and/or at the start of my tables and positioned absolutely so that I don\'t have to remove and re-add them.')
+    console.log('estimates become NaN if not set before it\'s updated')
 })
