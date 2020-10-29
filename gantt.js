@@ -45,7 +45,7 @@ $.gantt = function(){
     //Process the projects tables
     function processProject(id){
         return function(){
-            $(this).append("<td>0</td>")
+            $(this).append('<td data-gantt-role="slot">0</td>')
             let data = $('td',this)
             let projectid = $(data[0]).text()
             
@@ -102,7 +102,7 @@ $.gantt = function(){
     }
     $('table[data-gantt-role="projects"]').each(function (){
         let id = $(this).attr('data-gantt-id')
-        $('thead tr',this).append('<th>Slots Remaining</th>')
+        $('thead tr',this).append('<th data-gantt-role="slot">Slots Remaining</th>')
         $('tbody tr',this).each(processProject(id))
     })
     
@@ -377,8 +377,36 @@ $.gantt = function(){
                 }
             }
             button.click(addTimeslot(id,this))
+            button.before('</br>')
         })
     }addNewTimeslotButton()
+
+    function addSaveButton(){
+        $('table[data-gantt-role="gantt"]').each(function(){
+            let id = $(this).attr('data-gantt-id')
+            let button = $(`<button data-gantt-role="save" data-gantt-id="${id}">&#128427;</button>`)
+            $(`button[data-gantt-role="add-timeslot"][data-gantt-id="${id}"]`).after(button)
+
+            function save(){ 
+                
+                let text = new XMLSerializer().serializeToString(document)
+                text = text.replace(/data-gantt-projectid=".*?"/g, "")
+                text = text.replace(/data-gantt-resourceid=".*?"/g, "")
+                text = text.replace(/data-gantt-timeslotid=".*?"/g, "")
+                text = text.replace(/style=".*?"/g, "")
+                text = text.replace(/class=".*?"/g, "")
+                text = text.replace(/<t[dh] data-gantt-role="slot".*?>.*?<\/t[dh]>/g, "")
+                text = text.replace(/<button.*?\/button>/g, "")
+                text = text.replace(/<br.*?>/g, "")
+                text = text.replace(/<input .*? value="(.*?)".*?>/g, "$1")
+                text = text.replace(/ >/g, ">")
+                text = text.replace(/ >/g, ">")
+                window.open(`data:application/x-please-download-me;charset=utf-8,${encodeURIComponent(text)}`)
+            
+            }
+            button.click(save)
+        })
+    }addSaveButton()
 
     $('table[data-gantt-role="gantt"]').each(function(){
         let id = $(this).attr('data-gantt-id')

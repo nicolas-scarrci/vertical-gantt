@@ -106,15 +106,18 @@ button[data-gantt-role="add-resource"]{
     display:inline-block;
     width:2em;
 }
-button[data-gantt-role="add-timeslot"], button[data-gantt-role="add-project"]{
-    display:block;
-    height:2em;
-}
 button[data-gantt-role="add-project"]{
     margin-bottom:2em;
+    height:2em;
 }
 button[data-gantt-role="add-timeslot"]{
     margin-bottom:5em;
+    height:2em;
+}
+button[data-gantt-role="save"]{
+    width:2em;
+    height:2em;
+    vertical-align:top;
 }
 /* Deadlines */
 
